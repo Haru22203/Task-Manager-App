@@ -7,10 +7,11 @@ STACK:
 
 SET UP:
     Backend:
-    run commands (in order):
+    run commands //in order:
+    
         cd app
         cd be
-        npm install //To install all packages and dependencies
+        npm install      //To install all packages and dependencies
 
         // run the backend, run command
 
