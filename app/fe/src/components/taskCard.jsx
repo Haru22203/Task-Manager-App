@@ -1,3 +1,6 @@
+import { useState } from "react";
+import DeleteModal from "./deleteModal.jsx";
+
 import {
     FaCheck,
     FaTrash,
@@ -9,13 +12,26 @@ import {
     deleteTask,
     toggleTask,
     toggleActive,
+    updateTask,
 } from "../api/api.js";
 
 export default function TaskCard({ task, reload }) {
 
+    const [editing, setEditing] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+    const [title, setTitle] = useState(task.title);
+    const [description, setDescription] = useState(task.description);
+
     const handleDelete = async () => {
-        await deleteTask(task.id);
-        reload();
+        try{
+            await deleteTask(task.id);
+            setShowDeleteModal(false);
+            reload();
+        }
+        catch(error){
+            console.error("Failed to delete task:", error);
+        }
     };
 
     const handleToggle = async () => {
@@ -28,9 +44,40 @@ export default function TaskCard({ task, reload }) {
         reload();
     };
 
+    const handleEdit = () => {
+        setEditing(true);
+    };
+
+    const handleCancel = () => {
+        setTitle(task.title);
+        setDescription(task.description);
+        setEditing(false);
+    };
+
+    const handleSave = async () => {
+
+        if (!title.trim()) {
+            return;
+        }
+
+        try {
+
+            await updateTask(task.id, {
+                title: title.trim(),
+                description: description.trim(),
+            });
+
+            setEditing(false);
+
+            reload();
+
+        } catch (error) {
+            console.error("Failed to update task:", error);
+        }
+    };
+
     return (
-        <div
-            className="
+        <div className="
             group
             relative
             overflow-hidden
@@ -40,170 +87,234 @@ export default function TaskCard({ task, reload }) {
             bg-white/40
             backdrop-blur-xl
             shadow-xl
-
             transition-all
             duration-300
-
             hover:-translate-y-1
             hover:shadow-2xl
-            "
-        >
-
-            {/* Animated Glow */}
-
-            <div
-                className="
-                absolute
-                -top-20
-                -right-20
-
-                h-48
-                w-48
-
-                rounded-full
-
-                bg-blue-300/20
-                blur-3xl
-
-                opacity-0
-
-                transition
-
-                group-hover:opacity-100
-                "
-            />
+        ">
 
             <div className="relative p-6">
 
-                {/* Title */}
+                {editing ? (
 
-                <h2 className="text-2xl font-semibold text-slate-800">
-                    {task.title}
-                </h2>
 
-                {/* Description */}
+                    <div className="space-y-4">
 
-                <p className="mt-2 text-slate-600">
-                    {task.description}
-                </p>
+                        <input
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            className="
+                                w-full
+                                rounded-2xl
+                                border
+                                border-white/40
+                                bg-white/50
+                                px-4
+                                py-3
+                                text-xl
+                                font-semibold
+                                text-slate-800
+                                outline-none
+                                backdrop-blur-md
+                                focus:ring-2
+                                focus:ring-blue-400/50
+                            "
+                            placeholder="Task title"
+                        />
 
-                {/* Status */}
+                        <textarea
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            className="
+                                min-h-28
+                                w-full
+                                resize-none
+                                rounded-2xl
+                                border
+                                border-white/40
+                                bg-white/50
+                                px-4
+                                py-3
+                                text-slate-700
+                                outline-none
+                                backdrop-blur-md
+                                focus:ring-2
+                                focus:ring-blue-400/50
+                            "
+                            placeholder="Description"
+                        />
 
-                <div className="mt-5 flex flex-wrap gap-3">
+                        <div className="flex gap-3">
 
-                    <span
-                        className={`
-                        rounded-full
-                        px-4
-                        py-1
+                            <button
+                                onClick={handleSave}
+                                className="
+                                    rounded-full
+                                    bg-blue-500
+                                    px-6
+                                    py-2
+                                    font-semibold
+                                    text-white
+                                    transition
+                                    hover:bg-blue-600
+                                "
+                            >
+                                Save
+                            </button>
 
-                        text-sm
-                        font-medium
+                            <button
+                                onClick={handleCancel}
+                                className="
+                                    rounded-full
+                                    bg-slate-200/70
+                                    px-6
+                                    py-2
+                                    font-semibold
+                                    text-slate-700
+                                    transition
+                                    hover:bg-slate-300
+                                "
+                            >
+                                Cancel
+                            </button>
 
-                        backdrop-blur-md
+                        </div>
 
-                        ${
-                            task.active
-                                ? "bg-green-400/20 text-green-700"
-                                : "bg-red-400/20 text-red-700"
-                        }
-                        `}
-                    >
-                        {task.active ? "Active" : "Inactive"}
-                    </span>
+                    </div>
 
-                    <span
-                        className={`
-                        rounded-full
-                        px-4
-                        py-1
+                ) : (
 
-                        text-sm
-                        font-medium
 
-                        backdrop-blur-md
+                    <>
+                        <h2 className="
+                            text-2xl
+                            font-semibold
+                            text-slate-800
+                        ">
+                            {task.title}
+                        </h2>
 
-                        ${
-                            task.completed
-                                ? "bg-blue-400/20 text-blue-700"
-                                : "bg-gray-300/30 text-gray-600"
-                        }
-                        `}
-                    >
-                        {task.completed
-                            ? "Completed"
-                            : "Pending"}
-                    </span>
+                        <p className="
+                            mt-2
+                            text-slate-600
+                        ">
+                            {task.description}
+                        </p>
 
-                </div>
+                        <div className="mt-5 flex flex-wrap gap-3">
 
-                {/* Actions */}
+                            <span className={`
+                                rounded-full
+                                px-4
+                                py-1
+                                text-sm
+                                font-medium
 
-                <div className="mt-6 flex items-center gap-3">
+                                ${
+                                    task.active
+                                        ? "bg-green-400/20 text-green-700"
+                                        : "bg-red-400/20 text-red-700"
+                                }
+                            `}>
+                                {task.active ? "Active" : "Inactive"}
+                            </span>
 
-                    <button
-                        onClick={handleToggle}
-                        className="
-                        rounded-full
-                        bg-green-400/20
-                        p-3
+                            <span className={`
+                                rounded-full
+                                px-4
+                                py-1
+                                text-sm
+                                font-medium
 
-                        transition
+                                ${
+                                    task.completed
+                                        ? "bg-blue-400/20 text-blue-700"
+                                        : "bg-gray-300/30 text-gray-600"
+                                }
+                            `}>
+                                {task.completed
+                                    ? "Completed"
+                                    : "Pending"}
+                            </span>
 
-                        hover:scale-110
-                        "
-                    >
-                        <FaCheck />
-                    </button>
+                        </div>
 
-                    <button
-                        onClick={handleActive}
-                        className="
-                        rounded-full
-                        bg-blue-400/20
-                        p-3
+                        <div className="mt-6 flex items-center gap-3">
 
-                        transition
+                            <button
+                                onClick={handleToggle}
+                                className="
+                                    flex
+                                    items-center
+                                    rounded-full
+                                    bg-green-400/20
+                                    p-3
+                                    transition
+                                    hover:scale-110
+                                "
+                            >
+                                <FaCheck /> Check
+                            </button>
 
-                        hover:scale-110
-                        "
-                    >
-                        <FaCircle />
-                    </button>
+                            <button
+                                onClick={handleActive}
+                                className="
+                                    flex
+                                    items-center
+                                    rounded-full
+                                    bg-blue-400/20
+                                    p-3
+                                    transition
+                                    hover:scale-110
+                                "
+                            >
+                                <FaCircle /> Activity
+                            </button>
 
-                    <button
-                        className="
-                        rounded-full
-                        bg-yellow-400/20
-                        p-3
+                            <button
+                                onClick={handleEdit}
+                                className="
+                                    flex
+                                    items-center
+                                    rounded-full
+                                    bg-yellow-400/20
+                                    p-3
+                                    transition
+                                    hover:scale-110
+                                "
+                            >
+                                <FaEdit /> Edit
+                            </button>
 
-                        transition
+                            <button
+                                onClick={() => setShowDeleteModal(true)}
+                                className="
+                                    flex
+                                    items-center
+                                    rounded-full
+                                    bg-red-400/20
+                                    p-3
+                                    transition
+                                    hover:scale-110
+                                "
+                            >
+                                <FaTrash /> Delete
+                            </button>
 
-                        hover:scale-110
-                        "
-                    >
-                        <FaEdit />
-                    </button>
+                        </div>
 
-                    <button
-                        onClick={handleDelete}
-                        className="
-                        rounded-full
-                        bg-red-400/20
-                        p-3
+                    </>
 
-                        transition
-
-                        hover:scale-110
-                        "
-                    >
-                        <FaTrash />
-                    </button>
-
-                </div>
+                )}
 
             </div>
-
+                {showDeleteModal && (
+                    <DeleteModal
+                        task={task}
+                        onConfirm={handleDelete}
+                        onCancel={() => setShowDeleteModal(false)}
+                    />
+                )}
         </div>
     );
 }

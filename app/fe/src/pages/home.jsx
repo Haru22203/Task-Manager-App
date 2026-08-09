@@ -28,9 +28,9 @@ export default function Home() {
     }, [loadTasks]);
 
     return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-100 via-white to-blue-100">
+    <div className="relative min-h-screen overflow-hidden bg-linnear-to-br from-slate-100 via-white to-blue-100">
 
-        {/* Background Blobs */}
+        {/*Background*/}
 
         <div className="absolute left-20 top-20 h-72 w-72 rounded-full bg-sky-300/30 blur-3xl" />
 
@@ -38,7 +38,7 @@ export default function Home() {
 
         <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-200/20 blur-3xl" />
 
-        {/* Actual Content */}
+        {/*Actual Content*/}
 
         <div className="relative z-10 mx-auto max-w-6xl p-8">
 
