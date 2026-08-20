@@ -1,5 +1,27 @@
 TASK MANAGER APP
 
+Architecture
+
+Frontend
+React
+   ↓
+taskApi.js
+   ↓
+REST API
+   ↓
+Express
+   ↓
+Controller
+   ↓
+Service
+   ↓
+Repository
+   ↓
+Supabase
+   ↓
+PostgreSQL
+
+
 STACK: 
     Frontend: ReactJS Vite
     Backend: NodeJS(v4) Express
