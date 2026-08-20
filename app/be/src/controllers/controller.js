@@ -23,7 +23,7 @@ export const getTasks = async (req, res) => {
 };
 
 //CREATE
- export const newTask = async (req, res) => {
+export const newTask = async (req, res) => {
 
     try{
         const {data, error} = await taskService.newTask(req.body);
@@ -35,11 +35,11 @@ export const getTasks = async (req, res) => {
     
     catch (err) {   res.status(400).json({ error: err.message });   }
     
- }     
+}     
 
 
  //UPD
- export const updateTask = async (req, res) => {
+export const updateTask = async (req, res) => {
     try {
         const { data, error } = await taskService.updTask(
             req.params.id,
